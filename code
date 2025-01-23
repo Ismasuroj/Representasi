@@ -1,0 +1,140 @@
+class FamilyMember:
+    def __init__(self, name, relation):
+        """
+        Inisialisasi anggota keluarga dengan nama dan hubungan dalam keluarga.
+        """
+        self.name = name
+        self.relation = relation
+        self.partner = None
+        self.children = []
+        self.siblings = []
+        self.nieces_nephews = []
+
+    def add_partner(self, partner):
+        """
+        Menambahkan pasangan untuk anggota keluarga ini.
+        """
+        self.partner = partner
+        partner.partner = self  # Menjadikan hubungan dua arah
+
+    def add_child(self, child):
+        """
+        Menambahkan anak ke dalam daftar anak dari anggota keluarga ini.
+        """
+        self.children.append(child)
+
+    def set_siblings(self, siblings):
+        """
+        Menetapkan saudara kandung.
+        """
+        self.siblings = siblings
+
+    def set_nieces_nephews(self, nieces_nephews):
+        """
+        Menetapkan keponakan (anak dari saudara kandung).
+        """
+        self.nieces_nephews = nieces_nephews
+
+    def __repr__(self):
+        return f"{self.relation}: {self.name}"
+
+
+class FamilyTree:
+    def __init__(self, root):
+        """
+        Inisialisasi pohon keluarga dengan akar utama (kakek atau nenek).
+        """
+        self.root = root
+
+    def print_tree(self, member=None, level=0):
+        """
+        Mencetak pohon keluarga secara hierarkis.
+        """
+        if member is None:
+            member = self.root
+
+        print("  " * level + f"{member.relation}: {member.name}")
+        if member.partner:
+            print("  " * level + f"{member.partner.relation}: {member.partner.name}")
+
+        for child in member.children:
+            self.print_tree(child, level + 1)
+
+    def print_family_roles(self):
+        """
+        Mencetak semua anggota keluarga beserta perannya dalam keluarga.
+        """
+        members = []
+        self.collect_members(self.root, members)
+
+        print("\nDaftar Anggota Keluarga:")
+        for member in members:
+            details = []
+            if member.partner:
+                details.append(f"pasangan dari: {member.partner.name}")
+            if member.siblings:
+                sibling_names = ", ".join([sibling.name for sibling in member.siblings])
+                details.append(f"saudara dari: {sibling_names}")
+            if member.nieces_nephews:
+                nieces_nephews_names = ", ".join([n.name for n in member.nieces_nephews])
+                details.append(f"{member.relation.lower()} dari: {nieces_nephews_names}")
+
+            details_str = f" ({'; '.join(details)})" if details else ""
+            print(f"- {member.relation}: {member.name}{details_str}")
+
+    def collect_members(self, member, members_list):
+        """
+        Mengumpulkan semua anggota keluarga dalam daftar.
+        """
+        if member not in members_list:
+            members_list.append(member)
+        for child in member.children:
+            self.collect_members(child, members_list)
+
+
+# Membuat struktur pohon keluarga berdasarkan gambar
+hadi = FamilyMember("Hadi", "Kakek")
+retno = FamilyMember("Retno", "Nenek")
+hadi.add_partner(retno)  # Menyatukan pasangan Hadi & Retno
+
+wahyu = FamilyMember("Wahyu", "Paman")
+rina = FamilyMember("Rina", "Bibi")
+
+ardi = FamilyMember("Ardi", "Ayah")
+ana = FamilyMember("Ana", "Ibu")
+ardi.add_partner(ana)  # Menyatukan pasangan Ardi & Ana
+
+hamzah = FamilyMember("Hamzah", "Sepupu")
+eka = FamilyMember("Eka", "Saudara Perempuan")
+mira = FamilyMember("Mira", "Saudara Perempuan")
+bastian = FamilyMember("Bastian", "Saudara Laki-laki")
+
+# Menyusun hubungan keluarga sesuai gambar
+hadi.add_child(wahyu)
+hadi.add_child(rina)
+hadi.add_child(ardi)
+
+rina.add_child(hamzah)
+ardi.add_child(eka)
+ardi.add_child(mira)
+ardi.add_child(bastian)
+
+# Menetapkan hubungan saudara kandung
+eka.set_siblings([mira, bastian])
+mira.set_siblings([eka, bastian])
+bastian.set_siblings([eka, mira])
+
+# Menetapkan keponakan untuk paman dan bibi
+wahyu.set_nieces_nephews([eka, mira, bastian])
+rina.set_nieces_nephews([eka, mira, bastian])
+hamzah.set_nieces_nephews([eka, mira, bastian])
+
+# Membuat pohon keluarga dengan akar "Hadi"
+family_tree = FamilyTree(hadi)
+
+# Menampilkan pohon keluarga secara hierarkis
+print("Struktur Pohon Keluarga:")
+family_tree.print_tree()
+
+# Menampilkan daftar semua anggota keluarga beserta perannya
+family_tree.print_family_roles()
